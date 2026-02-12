@@ -1,0 +1,32 @@
+package main
+
+import (
+	"context"
+	"log"
+	"main.go/services/product/db"
+)
+
+func main() {
+	// Load database configuration from environment variables
+	config := db.LoadConfig()
+
+	// Connect to the database
+	if err := db.Connect(config); err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer db.Close()
+
+	log.Println("Successfully connected to Product database!")
+
+	// Get the database connection pool
+	conn := db.GetDB()
+
+	// Example: Test query
+	var version string
+	err := conn.QueryRow(context.Background(), "SELECT version()").Scan(&version)
+	if err != nil {
+		log.Fatalf("Failed to query database: %v", err)
+	}
+
+	log.Printf("PostgreSQL version: %s", version)
+}
